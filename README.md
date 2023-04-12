@@ -2,7 +2,7 @@
 
 This project is a test page to demonstrate Automatic Speech Recognition (ASR) using OpenAI's Whisper model running locally. It consists of a simple webpage that captures audio from the user's microphone, sends it to a custom endpoint, and displays the transcribed text and the time it took to render the transcription.
 
-![Webpage](images/webdemo.png)
+![Webpage](images/screenshot.png)
 
 
 ## Features
