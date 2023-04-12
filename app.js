@@ -8,7 +8,7 @@ let audioContext
 let mediaStreamSource
 let scriptProcessorNode
 let silenceStart
-const silenceDuration = 3 // in seconds
+const silenceDuration = 2 // in seconds
 const whisperEndpoint =
   'http://localhost:3000/proxy/asr?task=transcribe&output=json'
 
@@ -109,7 +109,6 @@ async function sendToWhisperAPI(audioBlob) {
   const elapsedTime = ((endTime - startTime) / 1000).toFixed(2)
 
   if (response.ok) {
-    console.log(await response)
     const data = await response.json()
     return { text: data.text, elapsedTime }
   } else {
