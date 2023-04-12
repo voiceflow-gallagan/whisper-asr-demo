@@ -1,1 +1,8 @@
 /.DS_Store
+cert.pem
+.gitignore
+key.pem
+backup
+node_modules
+.env
+package-lock.json

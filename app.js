@@ -8,8 +8,9 @@ let audioContext
 let mediaStreamSource
 let scriptProcessorNode
 let silenceStart
-const silenceDuration = 3000 // 3 seconds
-const whisperEndpoint = 'https://whisper.voiceflow.studio/api/speech-to-text'
+const silenceDuration = 3 // in seconds
+const whisperEndpoint =
+  'http://localhost:3000/proxy/asr?task=transcribe&output=json'
 
 async function init() {
   try {
@@ -39,7 +40,11 @@ async function init() {
       const { text, elapsedTime } = await sendToWhisperAPI(audioBlob)
       resultDiv.innerHTML = `
       <p>${text}</p>
-      ${elapsedTime ? `<small>Rendered in ${elapsedTime} seconds</small>` : ''}
+      ${
+        elapsedTime
+          ? `<small class="elapsed-time">Rendered in ${elapsedTime} seconds</small>`
+          : ''
+      }
     `
     })
 
@@ -65,7 +70,7 @@ async function init() {
 function checkForSilence(inputBuffer) {
   const isSilent = isBufferSilent(inputBuffer)
   if (isSilent) {
-    if (Date.now() - silenceStart > silenceDuration) {
+    if (Date.now() - silenceStart > silenceDuration * 1000) {
       if (mediaRecorder.state === 'recording') {
         mediaRecorder.stop()
         startRecordingButton.textContent = 'Start Recording'
@@ -87,41 +92,24 @@ function isBufferSilent(buffer) {
 }
 
 async function sendToWhisperAPI(audioBlob) {
-  /* Using OpenAI Whisper API */
-  /*
-  // Replace with your OpenAI API key and endpoint
-  const apiKey = 'sk-'
-  const apiUrl = 'https://api.openai.com/v1/audio/transcriptions'
-
   const formData = new FormData()
-  formData.append('model', 'whisper-1')
-  formData.append('file', audioBlob, 'audio.mp3')
+  formData.append('audio_file', audioBlob, 'audio.mp3')
 
-  const startTime = performance.now();
-
-  const response = await fetch(apiUrl, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: formData,
-  })
-  */
-
-  /* Using custom Whisper API instance */
-
-  const arrayBuffer = await audioBlob.arrayBuffer()
   const startTime = performance.now()
+
   const response = await fetch(whisperEndpoint, {
     method: 'POST',
-    headers: { 'Content-Type': 'audio/mpeg' },
-    body: arrayBuffer,
+    headers: {
+      Accept: 'application/json',
+    },
+    body: formData,
   })
 
   const endTime = performance.now()
   const elapsedTime = ((endTime - startTime) / 1000).toFixed(2)
 
   if (response.ok) {
+    console.log(await response)
     const data = await response.json()
     return { text: data.text, elapsedTime }
   } else {
